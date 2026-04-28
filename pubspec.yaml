@@ -1,0 +1,58 @@
+name: guardian_app
+description: OS-Integrated Parental Control Companion Application
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # HTTP
+  http: ^1.2.0
+  dio: ^5.4.0
+
+  # Storage
+  shared_preferences: ^2.2.2
+  flutter_secure_storage: ^9.0.0
+
+  # Image picking (for national ID upload)
+  image_picker: ^1.0.7
+
+  # State management (lightweight)
+  provider: ^6.1.2
+
+  # UI utilities
+  cached_network_image: ^3.3.1
+  shimmer: ^3.0.0
+
+  # Connectivity
+  connectivity_plus: ^5.0.2
+
+  # Deep links / device info
+  device_info_plus: ^9.1.2
+  package_info_plus: ^5.0.1
+
+  # Local notifications (for heartbeat alerts)
+  flutter_local_notifications: ^16.3.2
+
+  # Google Fonts (Outfit)
+  google_fonts: ^6.2.1
+
+  # Charts (for screen time visualization)
+  fl_chart: ^0.67.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+
+  # If you use Google Fonts, you can remove assets block
+  # Or keep it if you bundle fonts locally
+  # assets:
+  #   - assets/images/
