@@ -1,0 +1,49 @@
+name: Build iOS Release
+
+on:
+  workflow_call:
+    inputs:
+      release_tag:
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build iOS without codesigning
+        run: flutter build ios --release --no-codesign
+
+      - name: Archive iOS build
+        run: |
+          mkdir -p release
+          ditto -c -k --sequesterRsrc --keepParent build/ios/iphoneos/Runner.app release/guardian_app-ios-${{ inputs.release_tag }}.zip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-release
+          path: release/guardian_app-ios-${{ inputs.release_tag }}.zip
+
+      - name: Publish GitHub Release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release/guardian_app-ios-${{ inputs.release_tag }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

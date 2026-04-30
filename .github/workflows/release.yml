@@ -1,0 +1,36 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version tag (for example v1.0.0)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    uses: ./.github/workflows/build-windows.yml
+    with:
+      release_tag: ${{ inputs.version != '' && inputs.version || github.ref_name }}
+
+  macos:
+    uses: ./.github/workflows/build-macos.yml
+    with:
+      release_tag: ${{ inputs.version != '' && inputs.version || github.ref_name }}
+
+  android:
+    uses: ./.github/workflows/build-android.yml
+    with:
+      release_tag: ${{ inputs.version != '' && inputs.version || github.ref_name }}
+
+  ios:
+    uses: ./.github/workflows/build-ios.yml
+    with:
+      release_tag: ${{ inputs.version != '' && inputs.version || github.ref_name }}
