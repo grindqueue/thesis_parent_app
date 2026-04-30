@@ -8,8 +8,7 @@ on:
     inputs:
       version:
         description: 'Release version tag (for example v1.0.0)'
-        required: false
-        default: ''
+        required: true
 
 permissions:
   contents: write

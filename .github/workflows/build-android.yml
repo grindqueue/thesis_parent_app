@@ -54,5 +54,7 @@ jobs:
           files: |
             release/guardian_app-android-${{ inputs.release_tag }}.aab
             release/guardian_app-android-${{ inputs.release_tag }}.apk
+          tag_name: ${{ inputs.release_tag }}
+          overwrite_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
