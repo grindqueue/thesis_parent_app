@@ -1,0 +1,55 @@
+name: Build Android Release
+
+on:
+  workflow_call:
+    inputs:
+      release_tag:
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Android App Bundle
+        run: flutter build appbundle --release
+
+      - name: Build APK
+        run: flutter build apk --release
+
+      - name: Rename artifacts
+        run: |
+          mkdir -p release
+          cp build/app/outputs/bundle/release/app-release.aab release/guardian_app-android-${{ inputs.release_tag }}.aab
+          cp build/app/outputs/flutter-apk/app-release.apk release/guardian_app-android-${{ inputs.release_tag }}.apk
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-release
+          path: release/*
+
+      - name: Publish GitHub Release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release/guardian_app-android-${{ inputs.release_tag }}.aab
+            release/guardian_app-android-${{ inputs.release_tag }}.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
