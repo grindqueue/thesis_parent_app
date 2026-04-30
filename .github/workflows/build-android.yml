@@ -28,10 +28,10 @@ jobs:
         run: flutter pub get
 
       - name: Build Android App Bundle
-        run: flutter build appbundle --release
+        run: flutter build appbundle --release -t main.dart
 
       - name: Build APK
-        run: flutter build apk --release
+        run: flutter build apk --release -t main.dart
 
       - name: Rename artifacts
         run: |

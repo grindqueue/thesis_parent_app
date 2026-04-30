@@ -31,7 +31,7 @@ jobs:
         run: flutter config --enable-macos-desktop
 
       - name: Build macOS
-        run: flutter build macos --release
+        run: flutter build macos --release -t main.dart
 
       - name: Package macOS artifact
         run: |

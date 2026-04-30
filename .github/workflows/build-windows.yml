@@ -31,7 +31,7 @@ jobs:
         run: flutter config --enable-windows-desktop
 
       - name: Build Windows
-        run: flutter build windows --release
+        run: flutter build windows --release -t main.dart
 
       - name: Package Windows artifact
         shell: pwsh
