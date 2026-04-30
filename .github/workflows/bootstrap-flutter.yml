@@ -1,0 +1,45 @@
+name: Bootstrap Flutter Platforms
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to commit generated platform files to'
+        required: false
+        default: 'main'
+
+permissions:
+  contents: write
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Generate missing Flutter platform files
+        run: flutter create .
+
+      - name: Commit generated files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          if ! git diff --cached --quiet; then
+            git commit -m "Bootstrap Flutter platform folders"
+            git push origin HEAD:${{ github.event.inputs.branch }}
+          else
+            echo "No changes to commit."
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

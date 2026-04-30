@@ -24,6 +24,9 @@ jobs:
           channel: stable
           cache: true
 
+      - name: Create missing Flutter platform files
+        run: flutter create .
+
       - name: Install dependencies
         run: flutter pub get
 
