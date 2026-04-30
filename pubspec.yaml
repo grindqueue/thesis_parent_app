@@ -36,7 +36,7 @@ dependencies:
   package_info_plus: ^5.0.1
 
   # Local notifications (for heartbeat alerts)
-  flutter_local_notifications: ^16.4.0
+  flutter_local_notifications: ^18.0.1
 
   # Google Fonts (Outfit)
   google_fonts: ^6.2.1
