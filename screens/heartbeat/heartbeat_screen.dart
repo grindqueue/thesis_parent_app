@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import '../theme/app_theme.dart';
-import '../widgets/shared_widgets.dart';
+import '../../theme/app_theme.dart';
+import '../../widgets/shared_widgets.dart';
 import '../../models/models.dart';
 
 class HeartbeatScreen extends StatefulWidget {
@@ -133,7 +133,7 @@ class _HeartbeatScreenState extends State<HeartbeatScreen>
                         children: [
                           Row(
                             children: [
-                              const Text('Auto',
+                              Text('Auto',
                                   style: TextStyle(
                                       fontFamily: 'Outfit',
                                       fontSize: 12,
@@ -404,7 +404,7 @@ class _HeartbeatCard extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Last Heartbeat',
+                    Text('Last Heartbeat',
                         style: TextStyle(
                             fontFamily: 'Outfit',
                             fontSize: 11,
@@ -424,7 +424,7 @@ class _HeartbeatCard extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      const Text('Using',
+                      Text('Using',
                           style: TextStyle(
                               fontFamily: 'Outfit',
                               fontSize: 11,
@@ -474,7 +474,7 @@ class _HeartbeatCard extends StatelessWidget {
           const SizedBox(height: 14),
 
           // Ping history bar
-          const Text('Recent Pings (last 10)',
+          Text('Recent Pings (last 10)',
               style: TextStyle(
                   fontFamily: 'Outfit',
                   fontSize: 11,

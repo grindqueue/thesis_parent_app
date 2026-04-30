@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
-import '../widgets/shared_widgets.dart';
+import '../../theme/app_theme.dart';
+import '../../widgets/shared_widgets.dart';
 import 'otp_verification_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -70,7 +70,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               Text('Create Account',
                   style: Theme.of(context).textTheme.headlineLarge),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'Set up your Guardian parent account to begin protecting your child\'s digital world.',
                 style: TextStyle(
                     color: AppColors.textSecondary,
@@ -184,14 +184,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
+                  Text(
                     'Already have an account? ',
                     style: TextStyle(
                         color: AppColors.textSecondary, fontFamily: 'Outfit'),
                   ),
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
-                    child: const Text(
+                    child: Text(
                       'Sign In',
                       style: TextStyle(
                           color: AppColors.primary,

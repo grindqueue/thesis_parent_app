@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
-import '../widgets/shared_widgets.dart';
+import '../../theme/app_theme.dart';
+import '../../widgets/shared_widgets.dart';
 import '../dashboard/dashboard_screen.dart';
 
 enum OtpMode { signup, login }
@@ -166,7 +166,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
+                  Text(
                     "Didn't receive the code? ",
                     style: TextStyle(
                         color: AppColors.textSecondary, fontFamily: 'Outfit'),

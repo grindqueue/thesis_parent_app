@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
-import '../widgets/shared_widgets.dart';
+import '../../theme/app_theme.dart';
+import '../../widgets/shared_widgets.dart';
 import '../../models/models.dart';
 
 class RulesScreen extends StatefulWidget {
@@ -239,7 +239,7 @@ class _AppRuleTile extends StatelessWidget {
                           : AppColors.accent,
                     ),
                     const SizedBox(height: 4),
-                    const Text('Tap to edit',
+                    Text('Tap to edit',
                         style: TextStyle(
                             fontFamily: 'Outfit',
                             fontSize: 11,
@@ -255,7 +255,7 @@ class _AppRuleTile extends StatelessWidget {
                     border: Border.all(
                         color: AppColors.primary.withOpacity(0.3), width: 1),
                   ),
-                  child: const Text('+ Add Rule',
+                  child: Text('+ Add Rule',
                       style: TextStyle(
                           fontFamily: 'Outfit',
                           fontSize: 12,
@@ -592,14 +592,14 @@ class _AddRuleSheetState extends State<_AddRuleSheet> {
             if (!_isBlocked) ...[
               const SizedBox(height: 20),
               // Time-based schedule
-              const Text('Time-Based Schedule',
+              Text('Time-Based Schedule',
                   style: TextStyle(
                       fontFamily: 'Outfit',
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
                       color: AppColors.textPrimary)),
               const SizedBox(height: 4),
-              const Text(
+              Text(
                 'Set when this app is allowed to run (time-based schedule algorithm)',
                 style: TextStyle(
                     fontFamily: 'Outfit',

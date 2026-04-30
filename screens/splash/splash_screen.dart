@@ -104,7 +104,7 @@ class _SplashScreenState extends State<SplashScreen>
                     child: const AppLogo(size: 90),
                   ),
                   const SizedBox(height: 28),
-                  const Text(
+                  Text(
                     'Guardian',
                     style: TextStyle(
                       fontFamily: 'Outfit',
@@ -115,7 +115,7 @@ class _SplashScreenState extends State<SplashScreen>
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'Parental Control System',
                     style: TextStyle(
                       fontFamily: 'Outfit',
