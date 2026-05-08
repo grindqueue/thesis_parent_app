@@ -57,6 +57,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
           ),
         ),
       );
+    } else if (authProvider.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(authProvider.errorMessage!)),
+      );
     }
   }
 

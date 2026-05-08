@@ -19,7 +19,10 @@ class AuthService {
       {'name': name, 'email': email, 'password': password, 'confirmPassword': confirmPassword},
       auth: false,
     );
-    return response['message'] ?? 'OTP sent to your email.';
+
+    return response['message'] ??
+        (response['data'] is Map<String, dynamic> ? response['data']['message'] : null) ??
+        'OTP sent to your email.';
   }
 
   // ── Login ─────────────────────────────────────────────────────────
@@ -35,7 +38,9 @@ class AuthService {
       {'email': email, 'password': password},
       auth: false,
     );
-    return response['message'] ?? 'Verification code sent.';
+    return response['message'] ??
+        (response['data'] is Map<String, dynamic> ? response['data']['message'] : null) ??
+        'Verification code sent.';
   }
 
   // ── Verify OTP (Signup) ───────────────────────────────────────────
@@ -52,12 +57,21 @@ class AuthService {
       auth: false,
     );
 
-    final token = response['token'] as String?;
+    final data = response['data'] is Map<String, dynamic>
+        ? (response['data'] as Map<String, dynamic>)
+        : response;
+
+    final token = data['token'] as String?;
     if (token == null) throw ApiException(message: 'Invalid server response.');
 
     await AppStorage.saveToken(token);
-    final parent = Parent.fromJson(response['parent'] as Map<String, dynamic>);
-    await AppStorage.saveParentData(jsonEncode(response['parent']));
+    final parentJson = data['parent'] ?? data['user'];
+    if (parentJson == null || parentJson is! Map) {
+      throw ApiException(message: 'Invalid user data received.');
+    }
+    final parentMap = Map<String, dynamic>.from(parentJson as Map);
+    final parent = Parent.fromJson(parentMap);
+    await AppStorage.saveParentData(jsonEncode(parentMap));
     return parent;
   }
 
@@ -75,12 +89,21 @@ class AuthService {
       auth: false,
     );
 
-    final token = response['token'] as String?;
+    final data = response['data'] is Map<String, dynamic>
+        ? (response['data'] as Map<String, dynamic>)
+        : response;
+
+    final token = data['token'] as String?;
     if (token == null) throw ApiException(message: 'Invalid server response.');
 
     await AppStorage.saveToken(token);
-    final parent = Parent.fromJson(response['parent'] as Map<String, dynamic>);
-    await AppStorage.saveParentData(jsonEncode(response['parent']));
+    final parentJson = data['parent'] ?? data['user'];
+    if (parentJson == null || parentJson is! Map) {
+      throw ApiException(message: 'Invalid user data received.');
+    }
+    final parentMap = Map<String, dynamic>.from(parentJson as Map);
+    final parent = Parent.fromJson(parentMap);
+    await AppStorage.saveParentData(jsonEncode(parentMap));
     return parent;
   }
 
@@ -93,7 +116,9 @@ class AuthService {
       {'email': email},
       auth: false,
     );
-    return response['message'] ?? 'Code resent.';
+    return response['message'] ??
+        (response['data'] is Map<String, dynamic> ? response['data']['message'] : null) ??
+        'Code resent.';
   }
 
   // ── Token Verification ─────────────────────────────────────────────
@@ -101,7 +126,11 @@ class AuthService {
   /// Returns: { valid: true }
   static Future<bool> verifyToken() async {
     final response = await ApiService.get('/parent/verify-token');
-    return response['valid'] == true;
+    final data = response['data'] is Map<String, dynamic>
+        ? (response['data'] as Map<String, dynamic>)
+        : response;
+
+    return data['valid'] == true || data['success'] == true || response['status'] == 'success';
   }
 
   // ── Get Stored Parent ─────────────────────────────────────────────
