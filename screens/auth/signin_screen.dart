@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/shared_widgets.dart';
 import 'otp_verification_screen.dart';
 import 'signup_screen.dart';
-import '../dashboard/dashboard_screen.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -30,26 +31,31 @@ class _SignInScreenState extends State<SignInScreen> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
 
-    // TODO: Call POST /api/auth/login
-    // final response = await ApiService.login(
-    //   email: _emailCtrl.text.trim(),
-    //   password: _passwordCtrl.text,
-    // );
-
-    await Future.delayed(const Duration(seconds: 1));
-    setState(() => _isLoading = false);
-
     if (!mounted) return;
-    // Login triggers OTP verification for extra security
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => OtpVerificationScreen(
-          email: _emailCtrl.text.trim(),
-          mode: OtpMode.login,
-        ),
-      ),
+    final authProvider = context.read<AuthProvider>();
+    final success = await authProvider.login(
+      email: _emailCtrl.text.trim(),
+      password: _passwordCtrl.text,
     );
+
+    setState(() => _isLoading = false);
+    if (!mounted) return;
+
+    if (success) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => OtpVerificationScreen(
+            email: _emailCtrl.text.trim(),
+            mode: OtpMode.login,
+          ),
+        ),
+      );
+    } else if (authProvider.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(authProvider.errorMessage!)),
+      );
+    }
   }
 
   @override

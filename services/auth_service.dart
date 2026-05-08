@@ -5,24 +5,25 @@ import 'api_service.dart';
 
 class AuthService {
   // ── Register ──────────────────────────────────────────────────────
-  /// POST /api/auth/register
-  /// Body: { name, email, password }
+  /// POST /auth/parent/signup
+  /// Body: { name, email, password, confirmPassword }
   /// Returns: { message } — OTP sent to email
   static Future<String> register({
     required String name,
     required String email,
     required String password,
+    required String confirmPassword,
   }) async {
     final response = await ApiService.post(
-      '/auth/register',
-      {'name': name, 'email': email, 'password': password},
+      '/auth/parent/signup',
+      {'name': name, 'email': email, 'password': password, 'confirmPassword': confirmPassword},
       auth: false,
     );
     return response['message'] ?? 'OTP sent to your email.';
   }
 
   // ── Login ─────────────────────────────────────────────────────────
-  /// POST /api/auth/login
+  /// POST /auth/parent/signin
   /// Body: { email, password }
   /// Returns: { message } — OTP sent to email for login confirmation
   static Future<String> login({
@@ -30,7 +31,7 @@ class AuthService {
     required String password,
   }) async {
     final response = await ApiService.post(
-      '/auth/login',
+      '/auth/parent/signin',
       {'email': email, 'password': password},
       auth: false,
     );
@@ -38,7 +39,7 @@ class AuthService {
   }
 
   // ── Verify OTP (Signup) ───────────────────────────────────────────
-  /// POST /api/auth/verify-otp
+  /// POST /auth/parent/verify-otp
   /// Body: { email, otp }
   /// Returns: { token, parent }
   static Future<Parent> verifySignupOtp({
@@ -46,7 +47,7 @@ class AuthService {
     required String otp,
   }) async {
     final response = await ApiService.post(
-      '/auth/verify-otp',
+      '/auth/parent/verify-otp',
       {'email': email, 'otp': otp},
       auth: false,
     );
@@ -61,7 +62,7 @@ class AuthService {
   }
 
   // ── Verify OTP (Login) ────────────────────────────────────────────
-  /// POST /api/auth/verify-login-otp
+  /// POST /auth/parent/verify-otp
   /// Body: { email, otp }
   /// Returns: { token, parent }
   static Future<Parent> verifyLoginOtp({
@@ -69,7 +70,7 @@ class AuthService {
     required String otp,
   }) async {
     final response = await ApiService.post(
-      '/auth/verify-login-otp',
+      '/auth/parent/verify-otp',
       {'email': email, 'otp': otp},
       auth: false,
     );
@@ -84,15 +85,23 @@ class AuthService {
   }
 
   // ── Resend OTP ────────────────────────────────────────────────────
-  /// POST /api/auth/resend-otp
+  /// POST /parent/resend-otp
   /// Body: { email }
   static Future<String> resendOtp({required String email}) async {
     final response = await ApiService.post(
-      '/auth/resend-otp',
+      '/parent/resend-otp',
       {'email': email},
       auth: false,
     );
     return response['message'] ?? 'Code resent.';
+  }
+
+  // ── Token Verification ─────────────────────────────────────────────
+  /// GET /parent/verify-token
+  /// Returns: { valid: true }
+  static Future<bool> verifyToken() async {
+    final response = await ApiService.get('/parent/verify-token');
+    return response['valid'] == true;
   }
 
   // ── Get Stored Parent ─────────────────────────────────────────────

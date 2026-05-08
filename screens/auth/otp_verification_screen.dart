@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/shared_widgets.dart';
 import '../dashboard/dashboard_screen.dart';
@@ -59,22 +61,25 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
     setState(() => _isLoading = true);
 
-    // TODO: Call POST /api/auth/verify-otp
-    // final response = await ApiService.verifyOtp(
-    //   email: widget.email,
-    //   otp: _otp,
-    //   mode: widget.mode == OtpMode.signup ? 'signup' : 'login',
-    // );
+    final authProvider = context.read<AuthProvider>();
+    final success = widget.mode == OtpMode.signup
+        ? await authProvider.verifySignupOtp(email: widget.email, otp: _otp)
+        : await authProvider.verifyLoginOtp(email: widget.email, otp: _otp);
 
-    await Future.delayed(const Duration(seconds: 1));
     setState(() => _isLoading = false);
 
     if (!mounted) return;
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (_) => const DashboardScreen()),
-      (_) => false,
-    );
+    if (success) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const DashboardScreen()),
+        (_) => false,
+      );
+    } else if (authProvider.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(authProvider.errorMessage!)),
+      );
+    }
   }
 
   Future<void> _onResend() async {
@@ -84,17 +89,21 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       _resendCooldown = 60;
     });
 
-    // TODO: Call POST /api/auth/resend-otp
-    // await ApiService.resendOtp(email: widget.email);
-
-    await Future.delayed(const Duration(milliseconds: 800));
+    final authProvider = context.read<AuthProvider>();
+    final success = await authProvider.resendOtp(email: widget.email);
     setState(() => _isResending = false);
     _startCooldown();
 
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Verification code resent!')),
-    );
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Verification code resent!')),
+      );
+    } else if (authProvider.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(authProvider.errorMessage!)),
+      );
+    }
   }
 
   @override
