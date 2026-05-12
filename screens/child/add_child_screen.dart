@@ -17,7 +17,6 @@ class _AddChildScreenState extends State<AddChildScreen> {
   String _selectedNationality = 'Nigerian';
   bool _isLoading = false;
   bool _idPhotoUploaded = false;
-  String? _idPhotoPath;
 
   final List<String> _nationalities = [
     'Nigerian', 'Ghanaian', 'Kenyan', 'South African', 'American',
@@ -41,7 +40,6 @@ class _AddChildScreenState extends State<AddChildScreen> {
     // Simulated for UI preview
     setState(() {
       _idPhotoUploaded = true;
-      _idPhotoPath = 'mock_id_photo.jpg';
     });
     Navigator.pop(context); // close bottom sheet
   }
