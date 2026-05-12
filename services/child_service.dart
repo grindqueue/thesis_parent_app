@@ -3,47 +3,37 @@ import '../models/models.dart';
 import 'api_service.dart';
 
 class ChildService {
-  // ── Upload National ID Photo ──────────────────────────────────────
-  /// POST /api/upload/national-id
-  /// Multipart: field = 'nationalId', file = image
-  /// Returns: { url } — stored file URL
-  static Future<String> uploadNationalId({required File imageFile}) async {
-    final response = await ApiService.uploadFile(
-      '/upload/national-id',
-      imageFile,
-      'nationalId',
-    );
-    final url = response['url'] as String?;
-    if (url == null) throw ApiException(message: 'Upload failed. No URL returned.');
-    return url;
-  }
-
-  // ── Register Child ────────────────────────────────────────────────
-  /// POST /api/children
-  /// Body: { name, age, deviceId, nationality, nationalIdUrl }
+  // ── Register Child ──────────────────────────────────────────────────────
+  /// POST /auth/child/signup
+  /// Multipart: field = 'nationalId'
+  /// Body: { name, age, parentId, deviceId }
   /// Returns: { child }
   static Future<Child> registerChild({
     required String name,
     required int age,
+    required String parentId,
     required String deviceId,
-    required String nationality,
-    required String nationalIdUrl,
+    required File nationalIdFile,
   }) async {
-    final response = await ApiService.post('/children', {
-      'name': name,
-      'age': age,
-      'deviceId': deviceId,
-      'nationality': nationality,
-      'nationalIdUrl': nationalIdUrl,
-    });
+    final response = await ApiService.uploadFile(
+      '/auth/child/signup',
+      nationalIdFile,
+      'nationalId',
+      fields: {
+        'name': name,
+        'age': age.toString(),
+        'parentId': parentId,
+        'deviceId': deviceId,
+      },
+    );
     return Child.fromJson(response['child'] as Map<String, dynamic>);
   }
 
   // ── Get All Children ──────────────────────────────────────────────
   /// GET /api/children
   /// Returns: { children: [...] }
-  static Future<List<Child>> getChildren() async {
-    final response = await ApiService.get('/children');
+  static Future<List<Child>> getChildren({required String parentId}) async {
+    final response = await ApiService.get('/api/v1/children/$parentId');
     final list = response['children'] as List<dynamic>? ?? [];
     return list
         .map((e) => Child.fromJson(e as Map<String, dynamic>))
@@ -51,10 +41,10 @@ class ChildService {
   }
 
   // ── Get Single Child ──────────────────────────────────────────────
-  /// GET /api/children/:id
+  /// GET /api/v1/child/:childId
   static Future<Child> getChild(String childId) async {
-    final response = await ApiService.get('/children/$childId');
-    return Child.fromJson(response['child'] as Map<String, dynamic>);
+    final response = await ApiService.get('/api/v1/child/$childId');
+    return Child.fromJson(response['childDetails'] as Map<String, dynamic>);
   }
 
   // ── Update Child ──────────────────────────────────────────────────

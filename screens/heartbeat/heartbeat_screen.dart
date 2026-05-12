@@ -18,34 +18,11 @@ class _HeartbeatScreenState extends State<HeartbeatScreen>
   int _countdown = 30;
   late AnimationController _pulseController;
 
-  // Mock heartbeats
-  List<DeviceHeartbeat> _heartbeats = [
-    DeviceHeartbeat(
-      id: 'hb1', childId: '1', deviceId: 'device-abc-001',
-      status: 'online', batteryLevel: 78, currentApp: 'YouTube',
-      dailyScreenTime: 7560, tokensRemaining: 42,
-      lastSeen: DateTime.now().subtract(const Duration(seconds: 8)),
-    ),
-    DeviceHeartbeat(
-      id: 'hb2', childId: '2', deviceId: 'device-xyz-002',
-      status: 'offline', batteryLevel: 23, currentApp: '',
-      dailyScreenTime: 3600, tokensRemaining: 90,
-      lastSeen: DateTime.now().subtract(const Duration(minutes: 47)),
-    ),
-  ];
-
-  final Map<String, String> _childNames = {
-    '1': 'Aisha Bello',
-    '2': 'Emeka Bello',
-  };
+  List<DeviceHeartbeat> _heartbeats = [];
+  final Map<String, String> _childNames = {};
 
   // Heartbeat history (last 10 pings per device)
-  final Map<String, List<DateTime>> _pingHistory = {
-    'hb1': List.generate(10, (i) =>
-        DateTime.now().subtract(Duration(seconds: i * 30))),
-    'hb2': List.generate(10, (i) =>
-        DateTime.now().subtract(Duration(minutes: 47 + i))),
-  };
+  final Map<String, List<DateTime>> _pingHistory = {};
 
   @override
   void initState() {

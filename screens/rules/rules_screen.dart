@@ -16,19 +16,7 @@ class _RulesScreenState extends State<RulesScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
-  // Mock installed apps (from child device)
-  final List<InstalledApp> _installedApps = [
-    InstalledApp(packageName: 'com.zhiliaoapp.musically', appName: 'TikTok', iconUrl: '', category: 'Social'),
-    InstalledApp(packageName: 'com.google.android.youtube', appName: 'YouTube', iconUrl: '', category: 'Video'),
-    InstalledApp(packageName: 'com.instagram.android', appName: 'Instagram', iconUrl: '', category: 'Social'),
-    InstalledApp(packageName: 'com.roblox.client', appName: 'Roblox', iconUrl: '', category: 'Gaming'),
-    InstalledApp(packageName: 'com.snapchat.android', appName: 'Snapchat', iconUrl: '', category: 'Social'),
-    InstalledApp(packageName: 'com.minecraft', appName: 'Minecraft', iconUrl: '', category: 'Gaming'),
-    InstalledApp(packageName: 'com.google.android.apps.maps', appName: 'Maps', iconUrl: '', category: 'Utility'),
-    InstalledApp(packageName: 'com.whatsapp', appName: 'WhatsApp', iconUrl: '', category: 'Communication'),
-  ];
-
-  // Mock rules
+  final List<InstalledApp> _installedApps = [];
   final List<AppRule> _rules = [];
 
   @override

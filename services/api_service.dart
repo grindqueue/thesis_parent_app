@@ -191,6 +191,15 @@ class ApiService {
     }
 
     if (statusCode >= 200 && statusCode < 300) {
+      final bool hasSuccess = body.containsKey('success');
+      final bool hasStatus = body.containsKey('status');
+      if ((hasSuccess && body['success'] == false) ||
+          (hasStatus && body['status'] == 'error')) {
+        throw ApiException(
+          message: body['message'] ?? 'Request failed.',
+          statusCode: statusCode,
+        );
+      }
       return body;
     } else if (statusCode == 401) {
       throw ApiException(

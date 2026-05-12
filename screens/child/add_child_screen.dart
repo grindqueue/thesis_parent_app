@@ -1,6 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+
 import '../../theme/app_theme.dart';
 import '../../widgets/shared_widgets.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/children_provider.dart';
 
 class AddChildScreen extends StatefulWidget {
   const AddChildScreen({super.key});
@@ -16,7 +23,7 @@ class _AddChildScreenState extends State<AddChildScreen> {
   final _deviceIdCtrl = TextEditingController();
   String _selectedNationality = 'Nigerian';
   bool _isLoading = false;
-  bool _idPhotoUploaded = false;
+  File? _idPhotoFile;
 
   final List<String> _nationalities = [
     'Nigerian', 'Ghanaian', 'Kenyan', 'South African', 'American',
@@ -32,16 +39,14 @@ class _AddChildScreenState extends State<AddChildScreen> {
   }
 
   Future<void> _pickIdPhoto(ImageSource source) async {
-    // TODO: Use image_picker package
-    // final picker = ImagePicker();
-    // final file = await picker.pickImage(source: source);
-    // if (file != null) setState(() { _idPhotoUploaded = true; _idPhotoPath = file.path; });
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(source: source, imageQuality: 85);
+    if (picked == null) return;
 
-    // Simulated for UI preview
     setState(() {
-      _idPhotoUploaded = true;
+      _idPhotoFile = File(picked.path);
     });
-    Navigator.pop(context); // close bottom sheet
+    if (mounted) Navigator.pop(context);
   }
 
   void _showPhotoSourceSheet() {
@@ -91,7 +96,7 @@ class _AddChildScreenState extends State<AddChildScreen> {
 
   Future<void> _onSubmit() async {
     if (!_formKey.currentState!.validate()) return;
-    if (!_idPhotoUploaded) {
+    if (_idPhotoFile == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             content: Text('Please upload the child\'s national ID photo')),
@@ -99,26 +104,41 @@ class _AddChildScreenState extends State<AddChildScreen> {
       return;
     }
 
+    final authParent = context.read<AuthProvider>().parent;
+    if (authParent == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Unable to register child: missing parent session.')),
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
 
-    // TODO: Upload ID photo first, then submit child registration
-    // final uploadRes = await ApiService.uploadNationalId(filePath: _idPhotoPath!);
-    // final res = await ApiService.registerChild(
-    //   name: _nameCtrl.text.trim(),
-    //   age: int.parse(_ageCtrl.text.trim()),
-    //   deviceId: _deviceIdCtrl.text.trim(),
-    //   nationality: _selectedNationality,
-    //   nationalIdUrl: uploadRes.url,
-    // );
+    final success = await context.read<ChildrenProvider>().registerChild(
+          name: _nameCtrl.text.trim(),
+          age: int.parse(_ageCtrl.text.trim()),
+          deviceId: _deviceIdCtrl.text.trim(),
+          parentId: authParent.id,
+          nationalIdFile: _idPhotoFile!,
+        );
 
-    await Future.delayed(const Duration(seconds: 1));
     setState(() => _isLoading = false);
 
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Child profile created successfully!')),
-    );
-    Navigator.pop(context);
+
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Child profile created successfully!')),
+      );
+      Navigator.pop(context);
+    } else {
+      final error = context.read<ChildrenProvider>().errorMessage;
+      if (error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error)),
+        );
+      }
+    }
   }
 
   @override
@@ -258,13 +278,13 @@ class _AddChildScreenState extends State<AddChildScreen> {
                           color: AppColors.inputFill,
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(
-                            color: _idPhotoUploaded
+                            color: _idPhotoFile != null
                                 ? AppColors.accent.withOpacity(0.5)
                                 : AppColors.cardBorder,
                             width: 1.5,
                           ),
                         ),
-                        child: _idPhotoUploaded
+                        child: _idPhotoFile != null
                             ? Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -278,18 +298,23 @@ class _AddChildScreenState extends State<AddChildScreen> {
                                         color: AppColors.accent, size: 32),
                                   ),
                                   const SizedBox(height: 10),
-                                  const Text('ID Photo Uploaded',
-                                      style: TextStyle(
-                                          fontFamily: 'Outfit',
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                          color: AppColors.accent)),
+                                  Text(
+                                    'ID Photo Selected',
+                                    style: const TextStyle(
+                                        fontFamily: 'Outfit',
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.accent),
+                                  ),
                                   const SizedBox(height: 4),
-                                  const Text('Tap to change',
-                                      style: TextStyle(
-                                          fontFamily: 'Outfit',
-                                          fontSize: 12,
-                                          color: AppColors.textMuted)),
+                                  Text(
+                                    _idPhotoFile!.path.split('/').last,
+                                    style: const TextStyle(
+                                        fontFamily: 'Outfit',
+                                        fontSize: 12,
+                                        color: AppColors.textMuted),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ],
                               )
                             : Column(
@@ -332,8 +357,6 @@ class _AddChildScreenState extends State<AddChildScreen> {
   }
 }
 
-// Placeholder enum (use image_picker's ImageSource in real code)
-enum ImageSource { camera, gallery }
 
 class _SheetOption extends StatelessWidget {
   final IconData icon;

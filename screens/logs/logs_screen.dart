@@ -16,44 +16,7 @@ class _LogsScreenState extends State<LogsScreen> {
     'All', 'Critical', 'Warning', 'Info', 'Blocked', 'Content',
   ];
 
-  // Mock data
-  final List<ActivityLog> _logs = [
-    ActivityLog(
-      id: '1', childId: '1', childName: 'Aisha', appName: 'TikTok',
-      eventType: 'app_blocked', description: 'TikTok access denied outside allowed hours (Schedule: 15:00–20:00)',
-      severity: 'warning', metadata: {}, timestamp: DateTime.now().subtract(const Duration(minutes: 3)),
-    ),
-    ActivityLog(
-      id: '2', childId: '1', childName: 'Aisha', appName: 'YouTube',
-      eventType: 'content_flagged', description: 'ML engine flagged video: potential violence content detected (confidence: 94%)',
-      severity: 'critical', metadata: {'confidence': 0.94, 'category': 'Violence'}, timestamp: DateTime.now().subtract(const Duration(minutes: 12)),
-    ),
-    ActivityLog(
-      id: '3', childId: '2', childName: 'Emeka', appName: 'Roblox',
-      eventType: 'app_accessed', description: 'Roblox session started within allowed schedule',
-      severity: 'info', metadata: {}, timestamp: DateTime.now().subtract(const Duration(minutes: 34)),
-    ),
-    ActivityLog(
-      id: '4', childId: '1', childName: 'Aisha', appName: 'Instagram',
-      eventType: 'policy_enforced', description: 'Token bucket depleted — Instagram access suspended until token refill',
-      severity: 'warning', metadata: {'tokensUsed': 60, 'tokensLimit': 60}, timestamp: DateTime.now().subtract(const Duration(hours: 1)),
-    ),
-    ActivityLog(
-      id: '5', childId: '2', childName: 'Emeka', appName: 'Snapchat',
-      eventType: 'app_blocked', description: 'Snapchat is blocked by parent policy',
-      severity: 'info', metadata: {}, timestamp: DateTime.now().subtract(const Duration(hours: 2)),
-    ),
-    ActivityLog(
-      id: '6', childId: '1', childName: 'Aisha', appName: 'Browser',
-      eventType: 'content_flagged', description: 'Adult content detected and blocked on visited URL',
-      severity: 'critical', metadata: {'url': '[redacted]', 'category': 'Adult Content'}, timestamp: DateTime.now().subtract(const Duration(hours: 3)),
-    ),
-    ActivityLog(
-      id: '7', childId: '1', childName: 'Aisha', appName: 'WhatsApp',
-      eventType: 'app_accessed', description: 'WhatsApp session within permitted hours',
-      severity: 'info', metadata: {}, timestamp: DateTime.now().subtract(const Duration(hours: 5)),
-    ),
-  ];
+  final List<ActivityLog> _logs = [];
 
   List<ActivityLog> get _filtered {
     if (_selectedFilter == 'All') return _logs;

@@ -24,11 +24,11 @@ class ChildrenProvider extends ChangeNotifier {
       _installedApps[deviceId] ?? [];
 
   // ── Load Children ─────────────────────────────────────────────────
-  Future<void> loadChildren() async {
+  Future<void> loadChildren({required String parentId}) async {
     _setLoading(true);
     _clearError();
     try {
-      _children = await ChildService.getChildren();
+      _children = await ChildService.getChildren(parentId: parentId);
       notifyListeners();
     } on ApiException catch (e) {
       _setError(e.message);
@@ -48,23 +48,19 @@ class ChildrenProvider extends ChangeNotifier {
     required String name,
     required int age,
     required String deviceId,
-    required String nationality,
+    required String parentId,
     required File nationalIdFile,
   }) async {
     _isSubmitting = true;
     _clearError();
     notifyListeners();
     try {
-      // Step 1: Upload national ID photo
-      final idUrl = await ChildService.uploadNationalId(imageFile: nationalIdFile);
-
-      // Step 2: Register child with the returned URL
       final child = await ChildService.registerChild(
         name: name,
         age: age,
+        parentId: parentId,
         deviceId: deviceId,
-        nationality: nationality,
-        nationalIdUrl: idUrl,
+        nationalIdFile: nationalIdFile,
       );
 
       _children.add(child);

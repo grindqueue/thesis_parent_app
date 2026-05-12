@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/shared_widgets.dart';
+import '../../providers/children_provider.dart';
+import '../../providers/auth_provider.dart';
 import '../child/add_child_screen.dart';
 import '../child/child_detail_screen.dart';
 import '../logs/logs_screen.dart';
@@ -16,58 +19,29 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   int _selectedIndex = 0;
+  bool _isInitialized = false;
 
-  // Mock data — replace with API calls
-  final List<Child> _children = [
-    Child(
-      id: '1',
-      name: 'Aisha Bello',
-      age: 12,
-      parentId: 'p1',
-      deviceId: 'device-abc-001',
-      nationality: 'Nigerian',
-      createdAt: DateTime.now().subtract(const Duration(days: 30)),
-    ),
-    Child(
-      id: '2',
-      name: 'Emeka Bello',
-      age: 9,
-      parentId: 'p1',
-      deviceId: 'device-xyz-002',
-      nationality: 'Nigerian',
-      createdAt: DateTime.now().subtract(const Duration(days: 15)),
-    ),
-  ];
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isInitialized) {
+      _isInitialized = true;
+      _loadChildren();
+    }
+  }
 
-  final List<DeviceHeartbeat> _heartbeats = [
-    DeviceHeartbeat(
-      id: 'hb1',
-      childId: '1',
-      deviceId: 'device-abc-001',
-      status: 'online',
-      batteryLevel: 78,
-      currentApp: 'YouTube',
-      dailyScreenTime: 7560,
-      tokensRemaining: 42,
-      lastSeen: DateTime.now().subtract(const Duration(seconds: 12)),
-    ),
-    DeviceHeartbeat(
-      id: 'hb2',
-      childId: '2',
-      deviceId: 'device-xyz-002',
-      status: 'offline',
-      batteryLevel: 23,
-      currentApp: '',
-      dailyScreenTime: 3600,
-      tokensRemaining: 90,
-      lastSeen: DateTime.now().subtract(const Duration(minutes: 47)),
-    ),
-  ];
+  Future<void> _loadChildren() async {
+    final authParent = context.read<AuthProvider>().parent;
+    if (authParent == null) return;
+    await context.read<ChildrenProvider>().loadChildren(parentId: authParent.id);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final childrenProvider = context.watch<ChildrenProvider>();
+    final children = childrenProvider.children;
     final screens = [
-      _HomeTab(children: _children, heartbeats: _heartbeats),
+      _HomeTab(children: children),
       const LogsScreen(),
       const HeartbeatScreen(),
     ];
@@ -78,10 +52,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ? FloatingActionButton.extended(
               onPressed: () async {
                 await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const AddChildScreen()));
-                setState(() {}); // Refresh after adding
+                  context,
+                  MaterialPageRoute(builder: (_) => const AddChildScreen()),
+                );
+                _loadChildren();
               },
               backgroundColor: AppColors.primary,
               icon: const Icon(Icons.add, color: Colors.white),
@@ -131,21 +105,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
 // ── Home Tab ──────────────────────────────────────────────────────
 class _HomeTab extends StatelessWidget {
   final List<Child> children;
-  final List<DeviceHeartbeat> heartbeats;
 
-  const _HomeTab({required this.children, required this.heartbeats});
-
-  DeviceHeartbeat? _heartbeatFor(String childId) {
-    try {
-      return heartbeats.firstWhere((h) => h.childId == childId);
-    } catch (_) {
-      return null;
-    }
-  }
+  const _HomeTab({required this.children});
 
   @override
   Widget build(BuildContext context) {
-    final online = heartbeats.where((h) => h.status == 'online').length;
+    final childCount = children.length;
 
     return SafeArea(
       child: CustomScrollView(
@@ -172,7 +137,7 @@ class _HomeTab extends StatelessWidget {
                                     fontWeight: FontWeight.w700,
                                     color: AppColors.textPrimary,
                                     letterSpacing: -0.3)),
-                            Text('${children.length} children monitored',
+                            Text('$childCount children monitored',
                                 style: const TextStyle(
                                     fontFamily: 'Outfit',
                                     fontSize: 12,
@@ -194,16 +159,16 @@ class _HomeTab extends StatelessWidget {
                     children: [
                       Expanded(
                           child: _SummaryTile(
-                        label: 'Online Now',
-                        value: '$online',
-                        icon: Icons.wifi_rounded,
+                        label: 'Children',
+                        value: '$childCount',
+                        icon: Icons.child_care_rounded,
                         color: AppColors.accent,
                       )),
                       const SizedBox(width: 12),
                       Expanded(
                           child: _SummaryTile(
                         label: 'Alerts Today',
-                        value: '3',
+                        value: '0',
                         icon: Icons.warning_amber_rounded,
                         color: AppColors.warning,
                       )),
@@ -211,7 +176,7 @@ class _HomeTab extends StatelessWidget {
                       Expanded(
                           child: _SummaryTile(
                         label: 'Rules Active',
-                        value: '8',
+                        value: '0',
                         icon: Icons.policy_rounded,
                         color: AppColors.accentPurple,
                       )),
@@ -227,22 +192,41 @@ class _HomeTab extends StatelessWidget {
               ),
             ),
           ),
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (ctx, i) {
-                  final child = children[i];
-                  final hb = _heartbeatFor(child.id);
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 14),
-                    child: _ChildCard(child: child, heartbeat: hb),
-                  );
-                },
-                childCount: children.length,
+          if (children.isEmpty)
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Center(
+                  child: Text(
+                    'No child profiles available yet. Add a child to start monitoring.',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontFamily: 'Outfit',
+                      fontSize: 15,
+                      color: AppColors.textMuted,
+                      height: 1.5,
+                    ),
+                  ),
+                ),
+              ),
+            )
+          else
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (ctx, i) {
+                    final child = children[i];
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 14),
+                      child: _ChildCard(child: child),
+                    );
+                  },
+                  childCount: children.length,
+                ),
               ),
             ),
-          ),
           const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
       ),
