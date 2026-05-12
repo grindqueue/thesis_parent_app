@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
-import '../widgets/shared_widgets.dart';
+import '../../theme/app_theme.dart';
+import '../../widgets/shared_widgets.dart';
 import 'otp_verification_screen.dart';
 
 class SignUpScreen extends StatefulWidget {

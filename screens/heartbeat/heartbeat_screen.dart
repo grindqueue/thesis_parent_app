@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import '../theme/app_theme.dart';
-import '../widgets/shared_widgets.dart';
+import '../../theme/app_theme.dart';
+import '../../widgets/shared_widgets.dart';
 import '../../models/models.dart';
 
 class HeartbeatScreen extends StatefulWidget {

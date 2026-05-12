@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
-import '../widgets/shared_widgets.dart';
+import '../../theme/app_theme.dart';
+import '../../widgets/shared_widgets.dart';
 import 'otp_verification_screen.dart';
 import 'signup_screen.dart';
-import '../dashboard/dashboard_screen.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
-import '../widgets/shared_widgets.dart';
+import '../../theme/app_theme.dart';
+import '../../widgets/shared_widgets.dart';
 import '../child/add_child_screen.dart';
 import '../child/child_detail_screen.dart';
 import '../logs/logs_screen.dart';

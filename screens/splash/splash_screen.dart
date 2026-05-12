@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:async';
 import '../../theme/app_theme.dart';
 import '../../widgets/shared_widgets.dart';
 import '../../providers/auth_provider.dart';
@@ -42,14 +43,24 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _initialize() async {
-    // Initialize notifications
-    await NotificationService.initialize();
+    // Initialize notifications without blocking the startup flow.
+    unawaited(
+      NotificationService.initialize().catchError((_) {
+        // Keep startup moving even if notification setup fails on a platform.
+      }),
+    );
 
-    // Wait for animation + auth check in parallel
-    await Future.wait([
-      Future.delayed(const Duration(seconds: 2)),
-      context.read<AuthProvider>().initialize(),
-    ]);
+    // Wait for the splash animation, then try to restore auth state.
+    await Future.delayed(const Duration(seconds: 2));
+
+    try {
+      await context
+          .read<AuthProvider>()
+          .initialize()
+          .timeout(const Duration(seconds: 5));
+    } catch (_) {
+      // Fall through and route to sign-in if auth restoration fails or stalls.
+    }
 
     if (!mounted) return;
 
