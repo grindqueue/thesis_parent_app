@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/shared_widgets.dart';
 import 'otp_verification_screen.dart';
 import 'signup_screen.dart';
-
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
 
@@ -29,26 +30,31 @@ class _SignInScreenState extends State<SignInScreen> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
 
-    // TODO: Call POST /api/auth/login
-    // final response = await ApiService.login(
-    //   email: _emailCtrl.text.trim(),
-    //   password: _passwordCtrl.text,
-    // );
-
-    await Future.delayed(const Duration(seconds: 1));
-    setState(() => _isLoading = false);
-
     if (!mounted) return;
-    // Login triggers OTP verification for extra security
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => OtpVerificationScreen(
-          email: _emailCtrl.text.trim(),
-          mode: OtpMode.login,
-        ),
-      ),
+    final authProvider = context.read<AuthProvider>();
+    final success = await authProvider.login(
+      email: _emailCtrl.text.trim(),
+      password: _passwordCtrl.text,
     );
+
+    setState(() => _isLoading = false);
+    if (!mounted) return;
+
+    if (success) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => OtpVerificationScreen(
+            email: _emailCtrl.text.trim(),
+            mode: OtpMode.login,
+          ),
+        ),
+      );
+    } else if (authProvider.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(authProvider.errorMessage!)),
+      );
+    }
   }
 
   @override
@@ -69,7 +75,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Guardian',
                         style: TextStyle(
                           fontFamily: 'Outfit',
@@ -95,7 +101,7 @@ class _SignInScreenState extends State<SignInScreen> {
               Text('Welcome Back',
                   style: Theme.of(context).textTheme.headlineLarge),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'Sign in to monitor and protect your child\'s device.',
                 style: TextStyle(
                     color: AppColors.textSecondary,
@@ -155,7 +161,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         onPressed: () {
                           // TODO: Navigate to forgot password
                         },
-                        child: const Text(
+                        child: Text(
                           'Forgot Password?',
                           style: TextStyle(
                               color: AppColors.primary,
@@ -205,7 +211,7 @@ class _SignInScreenState extends State<SignInScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
+                  Text(
                     'Don\'t have an account? ',
                     style: TextStyle(
                         color: AppColors.textSecondary, fontFamily: 'Outfit'),
@@ -214,7 +220,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(builder: (_) => const SignUpScreen())),
-                    child: const Text(
+                    child: Text(
                       'Sign Up',
                       style: TextStyle(
                           color: AppColors.primary,

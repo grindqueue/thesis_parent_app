@@ -1,8 +1,8 @@
 class AppConstants {
   // ── API ───────────────────────────────────────────────────────────
-  static const String baseUrl = 'https://your-api-url.com/api';
-  // Change to http://10.0.2.2:5000/api for Android emulator local dev
-  // Change to http://localhost:5000/api for iOS simulator local dev
+  static const String baseUrl = 'https://thesis-backend-7utd.onrender.com';
+  // Change to http://10.0.2.2:5000 for Android emulator local dev
+  // Change to http://localhost:5000 for iOS simulator local dev
 
   static const Duration connectTimeout = Duration(seconds: 15);
   static const Duration receiveTimeout = Duration(seconds: 20);

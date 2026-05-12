@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import '../models/models.dart';
 import '../services/auth_service.dart';
 import '../services/api_service.dart';
+import '../utils/storage.dart';
 
 enum AuthStatus { unknown, authenticated, unauthenticated }
 
@@ -24,8 +25,14 @@ class AuthProvider extends ChangeNotifier {
     try {
       final loggedIn = await AuthService.isLoggedIn();
       if (loggedIn) {
-        _parent = await AuthService.getStoredParent();
-        _status = AuthStatus.authenticated;
+        final tokenValid = await AuthService.verifyToken();
+        if (tokenValid) {
+          _parent = await AuthService.getStoredParent();
+          _status = AuthStatus.authenticated;
+        } else {
+          await AppStorage.clearAll();
+          _status = AuthStatus.unauthenticated;
+        }
       } else {
         _status = AuthStatus.unauthenticated;
       }
@@ -41,11 +48,12 @@ class AuthProvider extends ChangeNotifier {
     required String name,
     required String email,
     required String password,
+    required String confirmPassword,
   }) async {
     _setLoading(true);
     _clearError();
     try {
-      await AuthService.register(name: name, email: email, password: password);
+      await AuthService.register(name: name, email: email, password: password, confirmPassword: confirmPassword);
       return true;
     } on ApiException catch (e) {
       _setError(e.message);

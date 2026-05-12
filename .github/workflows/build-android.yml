@@ -1,0 +1,95 @@
+name: Build Android Release
+
+on:
+  workflow_call:
+    inputs:
+      release_tag:
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Create missing Flutter platform files
+        run: flutter create .
+
+      - name: Enable Android core library desugaring
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          path = Path('android/app/build.gradle.kts')
+          text = path.read_text()
+
+          if 'isCoreLibraryDesugaringEnabled' not in text:
+              if 'compileOptions {' in text:
+                  text = text.replace(
+                      'compileOptions {',
+                      'compileOptions {\n        isCoreLibraryDesugaringEnabled = true'
+                  )
+              elif 'android {' in text:
+                  text = text.replace(
+                      'android {',
+                      'android {\n    compileOptions {\n        sourceCompatibility = JavaVersion.VERSION_1_8\n        targetCompatibility = JavaVersion.VERSION_1_8\n        isCoreLibraryDesugaringEnabled = true\n    }\n    kotlinOptions {\n        jvmTarget = "1.8"\n    }'
+                  )
+
+          if 'kotlinOptions {' not in text:
+              if 'compileOptions {' in text and 'kotlinOptions {' not in text:
+                  text = text.replace(
+                      'compileOptions {\n        sourceCompatibility = JavaVersion.VERSION_1_8\n        targetCompatibility = JavaVersion.VERSION_1_8\n        isCoreLibraryDesugaringEnabled = true\n    }',
+                      'compileOptions {\n        sourceCompatibility = JavaVersion.VERSION_1_8\n        targetCompatibility = JavaVersion.VERSION_1_8\n        isCoreLibraryDesugaringEnabled = true\n    }\n    kotlinOptions {\n        jvmTarget = "1.8"\n    }'
+                  )
+
+          if 'coreLibraryDesugaring(' not in text:
+              text = text.replace(
+                  'dependencies {',
+                  'dependencies {\n    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.1.5")'
+              )
+
+          path.write_text(text)
+          PY
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Android App Bundle
+        run: flutter build appbundle --release -t main.dart
+
+      - name: Build APK
+        run: flutter build apk --release -t main.dart
+
+      - name: Rename artifacts
+        run: |
+          mkdir -p release
+          cp build/app/outputs/bundle/release/app-release.aab release/guardian_app-android-${{ inputs.release_tag }}.aab
+          cp build/app/outputs/flutter-apk/app-release.apk release/guardian_app-android-${{ inputs.release_tag }}.apk
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-release
+          path: release/*
+
+      - name: Publish GitHub Release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release/guardian_app-android-${{ inputs.release_tag }}.aab
+            release/guardian_app-android-${{ inputs.release_tag }}.apk
+          tag_name: ${{ inputs.release_tag }}
+          overwrite_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

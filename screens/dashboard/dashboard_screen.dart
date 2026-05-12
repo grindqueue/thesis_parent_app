@@ -85,7 +85,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               },
               backgroundColor: AppColors.primary,
               icon: const Icon(Icons.add, color: Colors.white),
-              label: const Text('Add Child',
+              label: Text('Add Child',
                   style: TextStyle(
                       color: Colors.white,
                       fontFamily: 'Outfit',
@@ -165,7 +165,7 @@ class _HomeTab extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Guardian',
+                            Text('Guardian',
                                 style: TextStyle(
                                     fontFamily: 'Outfit',
                                     fontSize: 20,
